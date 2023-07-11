@@ -1,7 +1,11 @@
 import {readdir} from "fs/promises";
 import {extname, join} from "path";
+import { PassThrough } from "stream";
+import Throttle from "throttle";
 import {ffprobe} from "@dropb/ffprobe";
+import { createReadStream } from "fs";
 import ffprobeStatic from "ffprobe-static";
+import { v4 as uuid } from "uuid";
 
 ffprobe.path = ffprobeStatic.path;
 
@@ -9,6 +13,8 @@ class Player {
     constructor() {
         this.clients = new Map();
         this.tracks = [];
+        this.index= 0;
+        this.bufferHeader = null
     }
 
     async getTrackBitrate(filepath) {
@@ -55,6 +61,15 @@ class Player {
         console.log("Starting audio stream");
         this.stream = createReadStream(track.filepath);
     }
+
+    addClient() {
+        const id = uuid();
+        const client = new PassThrough();
+
+        this.clients.set(id, client);
+        return { id, client };
+    }
+
 
     async start() {
         const track = this.currentTrack;
