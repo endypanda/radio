@@ -27,7 +27,7 @@ class Player {
     async loadTracks(dir) {
         let filenames = await readdir(dir);
         filenames = filenames.filter((filename) => extname(filename) === '.mp3');
-
+        console.log(filenames);
         const files = filenames.map((filename) => join(dir, filename));
         const promises = files.map(async filepath => {
             const bitrate = await this.getTrackBitrate(filepath)
@@ -112,6 +112,9 @@ class Player {
         return this.stream && this.throttle && this.currentTrack;
     }
 
+    removeClient(id) {
+        this.clients.delete(id);
+    }
 }
 
 const player = new Player();

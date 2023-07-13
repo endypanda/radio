@@ -1,12 +1,30 @@
 import express from 'express';
 import http from 'http';
 import {Server as IOServer} from "socket.io";
-import player from "./player";
+import player from "./player.js";
+import cors from "cors";
+import {fileURLToPath} from "url";
+import path from "path";
 
-const PORT = 8000;
+const PORT = 3000;
 const app = express();
 const server = http.createServer(app);
-const io = new IOServer(server);
+const io = new IOServer(server, {
+    cors: {
+        origin: "*",
+    },
+});
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const outputDir = path.join(__dirname, "../dist");
+
+app.use(express.static(outputDir));
+
+app.get("/", function (req, res) {
+    res.sendFile(path.join(outputDir, "index.html"));
+});
 
 (async () => {
     await player.loadTracks("tracks");
@@ -60,8 +78,7 @@ const io = new IOServer(server);
         client.pipe(res);
 
         req.on("close", () => {
-            queue.removeClient(id);
+            player.removeClient(id);
         });
-        res.status(200).json({Message: "Success"})
     })
 })()
