@@ -3,12 +3,15 @@ import http from 'http';
 import {Server as IOServer} from "socket.io";
 import player from "./player.js";
 import cors from "cors";
+import jwt from 'jsonwebtoken';
 import {fileURLToPath} from "url";
 import path from "path";
 
 const PORT = 3000;
 const app = express();
 const server = http.createServer(app);
+
+
 const io = new IOServer(server, {
     cors: {
         origin: "*",
@@ -21,6 +24,9 @@ const __dirname = path.dirname(__filename);
 const outputDir = path.join(__dirname, "../dist");
 
 app.use(express.static(outputDir));
+app.use(cors({
+    origin: '*'
+}))
 
 app.get("/", function (req, res) {
     res.sendFile(path.join(outputDir, "index.html"));
@@ -68,7 +74,7 @@ app.get("/", function (req, res) {
     })
 
     app.get('/stream', (req, res) => {
-        const { id, client } = player.addClient();
+        const {id, client} = player.addClient();
 
         res.set({
             "Content-Type": "audio/mp3",

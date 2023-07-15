@@ -45,7 +45,7 @@ class Player {
     }
 
     getNextTrack() {
-        if (this.index > this.tracks.length - 1) {
+        if (this.index === this.tracks.length) {
             this.index = 0;
         }
 
@@ -87,7 +87,6 @@ class Player {
     }
 
     play(useNewTrack = false) {
-        debugger;
         if (useNewTrack || !this.currentTrack) {
             console.log("Playing new track");
             this.getNextTrack();
